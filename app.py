@@ -118,12 +118,6 @@ def create_task():
     task.status = 'completed'
     db.session.commit()
 
-    # Send notification
-    agent.send_notification(
-        f"Task '{task.title}' completed: {response}",
-        title="Task Update"
-    )
-
     return jsonify(task.to_dict())
 
 @app.route('/tasks/<int:task_id>', methods=['PUT'])

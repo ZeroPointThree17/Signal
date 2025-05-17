@@ -4,7 +4,6 @@ import schedule
 import google.generativeai as genai
 import openai
 from dotenv import load_dotenv
-from pushover import Client as PushoverClient
 
 # Load environment variables
 load_dotenv()
@@ -14,11 +13,6 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 openai.api_key = OPENAI_API_KEY
 genai.configure(api_key=GOOGLE_API_KEY)
-
-# Configure Pushover
-PUSHOVER_USER_KEY = os.getenv('PUSHOVER_USER_KEY')
-PUSHOVER_API_TOKEN = os.getenv('PUSHOVER_API_TOKEN')
-pushover_client = PushoverClient(PUSHOVER_USER_KEY, api_token=PUSHOVER_API_TOKEN)
 
 class ProactiveAgent:
     def __init__(self):
@@ -71,14 +65,6 @@ class ProactiveAgent:
         else:
             return self.process_with_openai(input_text)
 
-    def send_notification(self, message, title="AI Agent Notification"):
-        """Send a notification to the user's phone."""
-        try:
-            pushover_client.send_message(message, title=title)
-            print(f"Notification sent: {title} - {message}")
-        except Exception as e:
-            print(f"Error sending notification: {str(e)}")
-
     def run_cycle(self):
         """Run one cycle of the agent's operation."""
         current_time = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -90,10 +76,6 @@ class ProactiveAgent:
         # Process both types of inputs
         chat_response = self.process_with_openai(chat_input)
         research_response = self.process_with_gemini(research_input)
-        
-        # Send notifications
-        self.send_notification(chat_response, title="AI Chat Update")
-        self.send_notification(research_response, title="AI Research Update")
         
         print(f"Cycle completed at {current_time}")
 
@@ -117,7 +99,7 @@ def main():
 
 if __name__ == "__main__":
     # Verify environment variables
-    required_vars = ['OPENAI_API_KEY', 'GOOGLE_API_KEY', 'PUSHOVER_USER_KEY', 'PUSHOVER_API_TOKEN']
+    required_vars = ['OPENAI_API_KEY', 'GOOGLE_API_KEY']
     missing_vars = [var for var in required_vars if not os.getenv(var)]
     
     if missing_vars:
